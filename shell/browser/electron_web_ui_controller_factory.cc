@@ -6,6 +6,7 @@
 
 #include <string>
 
+#include "chrome/browser/accessibility/accessibility_ui.h"
 #include "content/public/browser/web_contents.h"
 #include "electron/buildflags/buildflags.h"
 #include "shell/browser/ui/devtools_ui.h"
@@ -15,6 +16,7 @@ namespace electron {
 namespace {
 
 const char kChromeUIDevToolsBundledHost[] = "devtools";
+const char kChromeUIAccessibilityHost[] = "accessibility";
 
 }  // namespace
 
@@ -30,7 +32,8 @@ ElectronWebUIControllerFactory::~ElectronWebUIControllerFactory() = default;
 content::WebUI::TypeID ElectronWebUIControllerFactory::GetWebUIType(
     content::BrowserContext* browser_context,
     const GURL& url) {
-  if (url.host() == kChromeUIDevToolsBundledHost) {
+  if (url.host() == kChromeUIDevToolsBundledHost ||
+      url.host() == kChromeUIAccessibilityHost) {
     return const_cast<ElectronWebUIControllerFactory*>(this);
   }
 
@@ -56,7 +59,10 @@ ElectronWebUIControllerFactory::CreateWebUIControllerForURL(
   if (url.host() == kChromeUIDevToolsBundledHost) {
     auto* browser_context = web_ui->GetWebContents()->GetBrowserContext();
     return std::make_unique<DevToolsUI>(browser_context, web_ui);
+  } else if (url.host() == kChromeUIAccessibilityHost) {
+    return std::make_unique<AccessibilityUI>(web_ui);
   }
+
   return std::unique_ptr<content::WebUIController>();
 }
 
